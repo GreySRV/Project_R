@@ -1,1 +1,8 @@
+alembic init migrations # Создание структуры миграций
+alembic revision --autogenerate -m "Migration Name" # Cоздание миграции
+alembic upgrade head # Применение миграции
+alembic downgrade -1 # Откат миграции
+rm -rf migrations/ # Сброс миграций
 
+ls -la # Отображение всех файлов в папке, в том числе скрытых
+nano .env # Редактура .env файла
