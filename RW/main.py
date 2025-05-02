@@ -52,3 +52,38 @@ def create_test_data():
         db.close()
 
 create_test_data()
+
+# РАЗДЕЛЕНИЕ БЛОКА
+
+# Тестовый клиент
+from app.database import SessionLocal
+from app.models import Client
+
+def create_test_user():
+    db = SessionLocal()
+    try:
+        # Создаем объект пользователя
+        test_user = Client(
+            login="test_user",
+        )
+        
+        # Устанавливаем хеш пароля
+        test_user.set_password("passTester17")
+        
+        db.add(test_user)
+        db.commit()
+        print(f"Пользователь {test_user.login} создан! ID: {test_user.id}")
+        
+        # Проверяем пароль
+        print("Проверка пароля:", test_user.check_password("test_password123"))
+        
+        return test_user
+    except Exception as e:
+        db.rollback()
+        print(f"Ошибка: {e}")
+        raise
+    finally:
+        db.close()
+
+# Вызываем функцию
+test_user = create_test_user()
