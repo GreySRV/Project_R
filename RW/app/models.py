@@ -1,18 +1,27 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func, CheckConstraint
 from sqlalchemy.orm import relationship
 from .database import Base
+import bcrypt
 
 class Client(Base):
     __tablename__ = 'clients'
     
     id = Column(Integer, primary_key=True, index=True)
     login = Column(String(50), unique=True, nullable=False)
-    password = Column(String(255), nullable=False)  # Для хэшей
+    password_hash = Column(String(128), nullable=False)
     role = Column(String(20), default='user')
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     ratings = relationship("Rating", back_populates="client")
     collections = relationship("Collection", back_populates="client")
+
+    # Методы хеширования
+    def set_password(self, password: str):
+        salt = bcrypt.gensalt(rounds=int(os.getenv("BCRYPT_ROUNDS", 12)))
+        self.password_hash = bcrypt.hashpw(password.encode(), salt).decode()
+
+    def check_password(self, password: str) -> bool:
+        return bcrypt.checkpw(password.encode(), self.password_hash.encode())
 
 class Genre(Base):
     __tablename__ = 'genres'
