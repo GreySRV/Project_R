@@ -16,7 +16,7 @@ with engine.connect() as conn:
 
 # РАЗДЕЛЕНИЕ БЛОКА
 
-# Проверка правильной базы
+# Проверка правильной базы (рудимент)
 from app.database import engine
 print(engine.url) 
 
