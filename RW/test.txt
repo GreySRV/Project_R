@@ -38,6 +38,27 @@ curl -X POST http://localhost:5000/auth/login \
 
 ===============
 
+Проверки с базой:
+
+Подключиться к базе:
+docker exec -it base_1 psql -U srv -d base_1
+
+Посмотреть таблицы:
+\dt
+
+Посмотреть данные:
+SELECT * FROM clients;
+SELECT * FROM objects;
+SELECT * FROM genres;
+SELECT * FROM ratings;
+SELECT * FROM collections;
+SELECT * FROM collection_objects;
+
+Выход:
+\q
+
+===============
+
 Проверки:
 
 Регистрация:
