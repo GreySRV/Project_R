@@ -1,0 +1,284 @@
+==RW/app.py==
+
+from app import create_app
+from app.extensions import db
+
+app = create_app()
+
+# Проверка подключения к БД (выполняется при запуске)
+with app.app_context():
+    try:
+        #db.session.execute("SELECT 1")  # Простой тестовый запрос
+        engine = db.engine  # Получить SQLAlchemy engine
+        with engine.connect() as conn:
+            print("Успешное подключение к PostgreSQL!")
+            print(engine.url)
+            
+    except Exception as e:
+        print(f"Ошибка подключения: {e}")
+
+==RW/app/__init__.py==
+
+from flask import Flask
+from .config import Config
+from .extensions import db, ma, jwt
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    # Инициализация расширений
+    db.init_app(app)
+    ma.init_app(app)
+    jwt.init_app(app)
+
+    return app
+
+==RW/app/config.py==
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class Config:
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET")
+
+==RW/app/extensions.py==
+
+from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
+from flask_jwt_extended import JWTManager  # Manager\Extended
+
+db = SQLAlchemy()
+ma = Marshmallow()
+jwt = JWTManager()
+
+==RW/app/models/__init__.py==
+
+from .client import Client
+from .object import Object
+from .collection import Collection
+from .collection_object import CollectionObject
+from .genre import Genre
+from .rating import Rating
+
+__all__ = ['Client', 'Object', 'Collection', 'CollectionObject', 'Genre', 'Rating']
+
+==RW/app/models/client.py==
+
+from app.extensions import db
+import bcrypt
+
+class Client(db.Model):
+    __tablename__ = 'clients'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    login = db.Column(db.String(50), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+    role = db.Column(db.String(20), default='user')
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    # Связи с каскадами
+    ratings = db.relationship(
+        "Rating", 
+        back_populates="client",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+    
+    collections = db.relationship(
+        "Collection",
+        back_populates="client",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
+    def set_password(self, password):
+        self.password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+    def check_password(self, password):
+        return bcrypt.checkpw(password.encode(), self.password_hash.encode())
+
+==RW/app/models/collection_object.py==
+
+from app.extensions import db
+
+class CollectionObject(db.Model):
+    __tablename__ = 'collection_objects'
+    
+    collection_id = db.Column(
+        db.Integer, 
+        db.ForeignKey('collections.id', ondelete="CASCADE"), 
+        primary_key=True
+    )
+    object_id = db.Column(
+        db.Integer, 
+        db.ForeignKey('objects.id', ondelete="CASCADE"), 
+        primary_key=True
+    )
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    # Связи
+    collection = db.relationship(
+        "Collection", 
+        back_populates="object_associations"
+    )
+    object = db.relationship(
+        "Object", 
+        back_populates="collection_associations"
+    )
+
+==RW/app/models/collection.py==
+
+from app.extensions import db
+
+class Collection(db.Model):
+    __tablename__ = 'collections'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    client_id = db.Column(db.Integer, db.ForeignKey('clients.id', ondelete="CASCADE"), nullable=False)
+    name = db.Column(db.String(50), default='My Collection')
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    # Связи
+    client = db.relationship("Client", back_populates="collections")
+    object_associations = db.relationship(
+        "CollectionObject",
+        back_populates="collection",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
+==RW/app/models/genre.py==
+
+from app.extensions import db
+
+class Genre(db.Model):
+    __tablename__ = 'genres'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+    description = db.Column(db.String(200), default='No description')
+
+    # Связь
+    objects = db.relationship(
+        "Object",
+        back_populates="genre",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
+==RW/app/models/object.py==
+
+from app.extensions import db
+
+class Object(db.Model):
+    __tablename__ = 'objects'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    year = db.Column(db.Integer)
+    description = db.Column(db.String(500))
+    genre_id = db.Column(db.Integer, db.ForeignKey('genres.id', ondelete="SET NULL"))
+
+    # Связи
+    genre = db.relationship("Genre", back_populates="objects")
+    ratings = db.relationship(
+        "Rating",
+        back_populates="object",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+    
+    collection_associations = db.relationship(
+        "CollectionObject",
+        back_populates="object",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
+==RW/app/models/rating.py==
+
+from app.extensions import db
+
+class Rating(db.Model):
+    __tablename__ = 'ratings'
+    
+    client_id = db.Column(
+        db.Integer, 
+        db.ForeignKey('clients.id', ondelete="CASCADE"), 
+        primary_key=True
+    )
+    object_id = db.Column(
+        db.Integer, 
+        db.ForeignKey('objects.id', ondelete="CASCADE"), 
+        primary_key=True
+    )
+    rating = db.Column(db.Integer)
+    rated_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    # Связи
+    client = db.relationship(
+        "Client", 
+        back_populates="ratings"
+    )
+    object = db.relationship(
+        "Object", 
+        back_populates="ratings"
+    )
+
+    __table_args__ = (
+        db.CheckConstraint('rating >= 1 AND rating <= 10', name='check_rating_range'),
+    )
+
+==RW/app/services/auth.py==
+
+from flask_jwt_extended import create_access_token
+from app.models import Client
+from app.extensions import db
+
+def authenticate(login: str, password: str) -> str | None:
+    """Аутентификация пользователя. Возвращает JWT-токен."""
+    client = db.session.query(Client).filter_by(login=login).first()
+    if client and client.check_password(password):
+        return create_access_token(identity=client.id)
+    return None
+
+==RW/app/services/client.py==
+
+from app.models import Client
+from app.extensions import db
+
+def get_client(client_id: int) -> Client:
+    """Получить клиента по ID."""
+    return db.session.get(Client, client_id)
+
+def create_client(login: str, password: str) -> Client:
+    """Создать нового клиента."""
+    client = Client(login=login)
+    client.set_password(password)
+    db.session.add(client)
+    db.session.commit()
+    return client
+
+def delete_client(client_id: int) -> None:
+    """Удалить клиента."""
+    client = get_client(client_id)
+    if client:
+        db.session.delete(client)
+        db.session.commit()
+
+==RW/app/utils/exceptions.py==
+
+class APIError(Exception):
+    """Кастомная ошибка API."""
+    def __init__(self, message: str, status_code: int = 400):
+        self.message = message
+        self.status_code = status_code
+
+def handle_api_error(error: APIError) -> tuple[dict, int]:
+    """Обработчик ошибок для Flask."""
+    return {"error": error.message}, error.status_code

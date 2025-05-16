@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}RW{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1><a href="{{ url_for('frontend.home') }}">RW</a></h1>
+        <nav>
+            {% if session.client_id %}
+                <a href="{{ url_for('frontend.logout') }}">Выйти</a>
+            {% elif session.guest %}
+                <a href="{{ url_for('frontend.logout') }}">Выйти из гостевого режима</a>
+            {% else %}
+                <a href="{{ url_for('frontend.login') }}">Вход</a> |
+                <a href="{{ url_for('frontend.register') }}">Регистрация</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+              <ul class="flashes">
+                  {% for msg in messages %}
+                      <li>{{ msg }}</li>
+                  {% endfor %}
+              </ul>
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>RW © 2025</p>
+    </footer>
+</body>
+</html>
+

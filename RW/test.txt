@@ -1,0 +1,38 @@
+http://localhost:5000/
+
+=============
+
+alembic init migrations # Создание структуры миграций
+alembic revision --autogenerate -m "Migration Name" # Cоздание корневой миграции
+alembic upgrade head # Применение миграции
+alembic downgrade -1 # Откат последней миграции
+rm -rf migrations/ # Сброс миграций
+
+ls -la # Отображение всех файлов в папке, в том числе скрытых
+nano .env # Редактура .env файла
+
+=============
+
+получение токена во фласке
+
+curl -X POST http://localhost:5000/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"login": "логин", "password": "пароль"}'
+
+Юзеры:
+
+1.1 testuser
+1.2 5678
+
+2.1 first_front
+2.2 9876
+
+3.1 testeshe
+3.2 hfgt90plo
+
+===============
+
+Проверки:
+curl -X POST http://localhost:5000/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"login": "testuser", "password": "5678"}'
