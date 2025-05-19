@@ -28,7 +28,7 @@ curl -X POST http://localhost:5000/auth/login \
 1.2 5678
 
 2.1 first_front
-2.2 9876
+2.2 2222
 
 3.1 testeshe
 3.2 hfgt90plo
