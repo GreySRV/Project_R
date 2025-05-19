@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<h2>Личный кабинет</h2>
+
+<p><strong>Логин:</strong> {{ login }}</p>
+
+<a href="{{ url_for('frontend.user_collections') }}">📚 Мои коллекции</a>
+
+<hr>
+
+<!-- Настройки -->
+<button onclick="toggleBlock('settingsBlock')">⚙️ Настройки</button>
+<div id="settingsBlock" style="display:none; margin-top: 10px;">
+  <!-- Смена пароля -->
+  <button onclick="toggleBlock('passwordForm')">🔒 Сменить пароль</button>
+  <div id="passwordForm" style="display:none; margin-top: 10px;">
+    <form method="POST" action="{{ url_for('frontend.change_password') }}" onreset="clearPasswordFields()">
+      <label>Старый пароль:</label><br>
+      <input type="password" name="old_password" id="old_password"><br>
+      <label>Новый пароль:</label><br>
+      <input type="password" name="new_password" id="new_password"><br><br>
+      <button type="submit">Подтвердить</button>
+      <button type="reset" type="button" onclick="toggleBlock('passwordForm')">Отмена</button>
+    </form>
+  </div>
+</div>
+
+<hr style="margin-top: 30px;">
+<a href="{{ url_for('frontend.objects') }}">← Назад к списку</a>
+
+<script>
+  function toggleBlock(id) {
+    const el = document.getElementById(id);
+    el.style.display = (el.style.display === "none" || el.style.display === "") ? "block" : "none";
+    if (id === "passwordForm" && el.style.display === "none") clearPasswordFields();
+    if (id === "settingsBlock" && el.style.display === "none") {
+      document.getElementById('passwordForm').style.display = "none";
+      clearPasswordFields();
+    }
+  }
+
+  function clearPasswordFields() {
+    document.getElementById("old_password").value = "";
+    document.getElementById("new_password").value = "";
+  }
+</script>
+{% endblock %}
+

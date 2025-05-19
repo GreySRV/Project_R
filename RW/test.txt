@@ -1,0 +1,144 @@
+http://localhost:5000/
+
+=============
+
+alembic init migrations # Создание структуры миграций
+alembic revision --autogenerate -m "Migration Name" # Cоздание корневой миграции
+alembic upgrade head # Применение миграции
+alembic downgrade -1 # Откат последней миграции
+rm -rf migrations/ # Сброс миграций
+
+ls -la # Отображение всех файлов в папке, в том числе скрытых
+nano .env # Редактура .env файла
+
+=============
+
+получение токена во фласке
+
+curl -X POST http://localhost:5000/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"login": "логин", "password": "пароль"}'
+
+Юзеры:
+
+0.1 test_user
+0.2 не помню
+
+1.1 testuser
+1.2 5678
+
+2.1 first_front
+2.2 2222
+
+3.1 testeshe
+3.2 hfgt90plo
+
+4.1 user1
+4.2 pass123
+
+===============
+
+Проверки с базой:
+
+Подключиться к базе:
+docker exec -it base_1 psql -U srv -d base_1
+
+Посмотреть таблицы:
+\dt
+
+Посмотреть данные:
+SELECT * FROM clients;
+SELECT * FROM objects;
+SELECT * FROM genres;
+SELECT * FROM ratings;
+SELECT * FROM collections;
+SELECT * FROM collection_objects;
+
+Выход:
+\q
+
+===============
+
+Проверки:
+
+Регистрация:
+curl -X POST http://localhost:5000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"login": "user1", "password": "pass123"}'
+
+Вход\Получение токена:
+curl -X POST http://localhost:5000/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"login": "testuser", "password": "5678"}'
+
+Получить все объекты:
+curl http://localhost:5000/objects/
+
+Получить один объект: 
+curl http://localhost:5000/objects/1
+
+Создать объект:
+curl -X POST http://localhost:5000/objects/ \
+  -H "Authorization: Bearer <токен>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Stardew Valley", "year": 2016, "description": "Farming sim", "genre_id": 1}'
+
+Поставить оценку:
+curl -X POST http://localhost:5000/ratings/ \
+  -H "Authorization: Bearer <токен>" \
+  -H "Content-Type: application/json" \
+  -d '{"object_id": 1, "score": 8}'
+
+Получить оценки:
+curl -X GET http://localhost:5000/ratings/ \
+  -H "Authorization: Bearer <ТОКЕН>"
+
+Создать коллекцию:
+curl -X POST http://localhost:5000/collections/ \
+  -H "Authorization: Bearer <токен>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Любимые"}'
+
+Добавить объект в коллекцию:
+curl -X POST http://localhost:5000/collections/1/add \
+  -H "Authorization: Bearer <токен>" \
+  -H "Content-Type: application/json" \
+  -d '{"object_id": 2}'
+
+Объекты по жанру:
+curl http://localhost:5000/objects/genre/1
+
+Получить все жанры:
+curl http://localhost:5000/genres/
+
+Создать жанр:
+curl -X POST http://localhost:5000/genres/ \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer <ТОКЕН>" \
+     -d '{"name": "RPG", "description": "Role-playing games"}'
+
+Получить коллекции:
+curl -X GET http://localhost:5000/collections/ \
+  -H "Authorization: Bearer <ТОКЕН>"
+
+Удалить коллекцию:
+curl -X DELETE http://localhost:5000/collections/2 \
+  -H "Authorization: Bearer <ТОКЕН>"
+
+Удалить объект из коллекции:
+curl -X DELETE http://localhost:5000/collections/2/remove \
+  -H "Authorization: Bearer <ТОКЕН>" \
+  -H "Content-Type: application/json" \
+  -d '{"object_id": 2}'
+
+Переименовать коллекцию:
+curl -X PUT http://localhost:5000/collections/2 \
+  -H "Authorization: Bearer <ТОКЕН>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Избранные игры"}'
+
+Добавить объект в коллекцию:
+curl -X POST http://localhost:5000/collections/3/add \
+  -H "Authorization: Bearer <ТОКЕН>" \
+  -H "Content-Type: application/json" \
+  -d '{"object_id": 2}'

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Коллекция: {{ collection.name }}{% endblock %}
+
+{% block content %}
+<h2>Коллекция: {{ collection.name }}</h2>
+
+{% if objects %}
+  <ul>
+  {% for obj in objects %}
+    <li>
+      <a href="{{ url_for('frontend.object_detail', object_id=obj.id) }}">{{ obj.name }}</a>
+      <form method="POST"
+            action="{{ url_for('frontend.remove_from_collection', collection_id=collection.id) }}"
+            style="display:inline">
+        <input type="hidden" name="object_id" value="{{ obj.id }}">
+        <button type="submit">Удалить</button>
+      </form>
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+  <p>В этой коллекции пока нет объектов.</p>
+{% endif %}
+
+<a href="{{ url_for('frontend.user_collections') }}">← Назад к коллекциям</a>
+{% endblock %}
+

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Мои коллекции{% endblock %}
+
+{% block content %}
+<h2>Мои коллекции</h2>
+
+{% if collections %}
+  <ul>
+    {% for col in collections %}
+      <li>
+        <a href="{{ url_for('frontend.collection_detail', collection_id=col.id) }}">
+          {{ col.name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>У вас пока нет коллекций.</p>
+{% endif %}
+
+<a href="{{ url_for('frontend.objects') }}">← На главную</a>
+{% endblock %}
+
