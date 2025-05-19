@@ -1,0 +1,61 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+venv/
+.env/
+.venv/
+
+# Environment variables
+.env
+
+# Pytest / coverage / test cache
+.cache/
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb~
+
+# VSCode / IDEs
+.vscode/
+.idea/
+
+# SQL / SQLite / dump files
+*.db
+*.sqlite3
+
+# Logs and debug
+*.log
+logs/
+debug.log
+
+# Alembic migrations (compiled or cache)
+migrations/__pycache__/
+migrations/*.pyc
+
+# System / OS files
+.DS_Store
+Thumbs.db
+
+# Uploads / static generated
+uploads/
+static/cache/
+
+# Flask session / instance files
+instance/
+*.pid
+
+# mypy / type checker
+.mypy_cache/
+.dmypy.json
+.pyre/
+

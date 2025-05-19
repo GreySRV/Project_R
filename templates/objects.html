@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Список объектов{% endblock %}
+{% block content %}
+
+<h2>Список объектов</h2>
+
+{% if objects %}
+<ul>
+  {% for obj in objects %}
+    <li>
+      <a href="{{ url_for('frontend.object_detail', object_id=obj.id) }}">
+        {{ obj.name }}
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+  <p>Объекты не найдены.</p>
+{% endif %}
+
+{% endblock %}
+
