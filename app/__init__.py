@@ -7,7 +7,10 @@ from app.models import BlacklistedToken
 from flask_jwt_extended import get_jwt
 from app.extensions import db
 from app.routes.frontend import frontend
+from flask_migrate import Migrate
 import os
+
+migrate = Migrate()
 
 def create_app():
     app = Flask(
@@ -18,6 +21,7 @@ def create_app():
     app.config.from_object(Config)
 
     db.init_app(app)
+    migrate.init_app(app, db)
     ma.init_app(app)
     jwt.init_app(app)
 

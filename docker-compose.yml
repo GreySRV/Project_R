@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:15
+    container_name: base_1
+    environment:
+      POSTGRES_USER: srv
+      POSTGRES_PASSWORD: pass4base1
+      POSTGRES_DB: base_1
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    working_dir: /app
+    container_name: rw_web
+    command: flask run --host=0.0.0.0
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:

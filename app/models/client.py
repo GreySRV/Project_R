@@ -10,7 +10,7 @@ class Client(db.Model):
     role = db.Column(db.String(20), default='user')
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-    # Связи с каскадами
+    # Связи
     ratings = db.relationship(
         "Rating", 
         back_populates="client",

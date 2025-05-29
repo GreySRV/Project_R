@@ -1,7 +1,10 @@
+from flask.cli import with_appcontext
+from flask_migrate import Migrate
 from app import create_app
 from app.extensions import db
 
 app = create_app()
+migrate = Migrate(app, db)
 
 # Проверка подключения к БД (выполняется при запуске)
 with app.app_context():

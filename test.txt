@@ -13,7 +13,31 @@ nano .env # Редактура .env файла
 
 =============
 
-получение токена во фласке
+Добавление терминалу прав + перезагрузка
+sudo usermod -aG docker $USER
+newgrp docker
+
+Построение и запуск компоуза
+docker compose up --build -d
+
+Проверка контейнеров
+docker ps
+
+Остановка сервера
+docker compose down
+
+Логи (если up с -d)
+docker compose logs web
+
+Зайти внутрь контейнера
+docker compose exec web bash
+
+Фласк шелл (питон окружение для контейнеров)
+docker compose exec web flask --app app:create_app shell
+
+=============
+
+Получение токена во фласке
 
 curl -X POST http://localhost:5000/auth/login \
      -H "Content-Type: application/json" \
@@ -21,41 +45,11 @@ curl -X POST http://localhost:5000/auth/login \
 
 Юзеры:
 
-0.1 test_user
-0.2 не помню
+tester
+test1234
 
-1.1 testuser
-1.2 5678
-
-2.1 first_front
-2.2 2222
-
-3.1 testeshe
-3.2 hfgt90plo
-
-4.1 user1
-4.2 pass123
-
-===============
-
-Проверки с базой:
-
-Подключиться к базе:
-docker exec -it base_1 psql -U srv -d base_1
-
-Посмотреть таблицы:
-\dt
-
-Посмотреть данные:
-SELECT * FROM clients;
-SELECT * FROM objects;
-SELECT * FROM genres;
-SELECT * FROM ratings;
-SELECT * FROM collections;
-SELECT * FROM collection_objects;
-
-Выход:
-\q
+gamer
+play4567
 
 ===============
 
@@ -142,3 +136,67 @@ curl -X POST http://localhost:5000/collections/3/add \
   -H "Authorization: Bearer <ТОКЕН>" \
   -H "Content-Type: application/json" \
   -d '{"object_id": 2}'
+  
+===============
+
+Добавление эл-тов через консоль (внутри фласк шела)
+
+# Жанр
+from app.models import Genre
+from app.extensions import db
+
+new_genre = Genre(name="ИМЯ", description="ОПИСАНИЕ")
+db.session.add(new_genre)
+db.session.commit()
+print(f"Жанр добавлен с id = {new_genre.id}")
+
+# Объект
+from app.models import Object
+from app.extensions import db
+
+new_obj = Object(
+    name="ИМЯ",
+    year=ГОД,
+    description="ОПИСАНИЕ",
+    genre_id=АЙДИ_ЖАНРА
+)
+db.session.add(new_obj)
+db.session.commit()
+print(f"Объект добавлен с id = {new_obj.id}")
+
+# Юзер
+from app.models import Client
+from app.extensions import db
+
+client = Client(login="ЛОГИН")
+client.set_password("ПАРОЛЬ")
+db.session.add(client)
+db.session.commit()
+print(f"Клиент добавлен с id = {client.id}")
+
+# Коллекция(к юзеру)
+from app.models import Collection
+from app.extensions import db
+
+collection = Collection(name="НАЗВАНИЕ", client_id=АЙДИ_КЛИЕНТА)
+db.session.add(collection)
+db.session.commit()
+print(f"Коллекция добавлена с id = {collection.id}")
+
+# Объект к коллекции
+from app.models import CollectionObject
+from app.extensions import db
+
+link = CollectionObject(collection_id=АЙДИ_КОЛЛЕКЦИИ, object_id=АЙДИ_ОБЪЕКТА)
+db.session.add(link)
+db.session.commit()
+print("Объект добавлен в коллекцию")
+
+# Оценка
+from app.models import Rating
+from app.extensions import db
+
+rating = Rating(client_id=АЙДИ_КЛИЕНТА, object_id=АЙДИ_ОБЪЕКТА, rating=ОЦЕНКА)
+db.session.add(rating)
+db.session.commit()
+print("Оценка добавлена")

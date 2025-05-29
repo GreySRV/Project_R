@@ -10,7 +10,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = declarative_base()  # Это важно для моделей!
+Base = declarative_base()s
 
 def get_db():
     db = SessionLocal()

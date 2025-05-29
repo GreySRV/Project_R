@@ -1,0 +1,14 @@
+Flask
+Flask-JWT-Extended
+Flask-Migrate
+Flask-SQLAlchemy
+flask-marshmallow
+Flask-Migrate
+psycopg2-binary
+python-dotenv
+alembic
+bcrypt
+marshmallow
+marshmallow-sqlalchemy
+Jinja2
+requests
