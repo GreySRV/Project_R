@@ -1,0 +1,181 @@
+openapi: 3.0.0
+info:
+  title: RW Game Rating API
+  version: 1.0.0
+  description: API сервиса оценки видеоигр RW
+
+servers:
+  - url: http://localhost:5000/api
+
+paths:
+  /auth/register:
+    post:
+      summary: Регистрация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                password:
+                  type: string
+              required: [login, password]
+      responses:
+        '201':
+          description: Успешная регистрация
+        '400':
+          description: Ошибка регистрации
+
+  /auth/login:
+    post:
+      summary: Авторизация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                password:
+                  type: string
+              required: [login, password]
+      responses:
+        '200':
+          description: JWT-токен получен
+        '401':
+          description: Неверные данные
+
+  /auth/password:
+    put:
+      summary: Смена пароля
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_password:
+                  type: string
+                new_password:
+                  type: string
+              required: [old_password, new_password]
+      responses:
+        '200':
+          description: Пароль успешно изменён
+
+  /objects:
+    get:
+      summary: Получить все объекты
+      responses:
+        '200':
+          description: Список объектов
+
+  /objects/{id}:
+    get:
+      summary: Получить объект по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Объект найден
+        '404':
+          description: Объект не найден
+
+  /genres:
+    get:
+      summary: Получить список жанров
+      responses:
+        '200':
+          description: Успешный ответ
+
+  /collections:
+    get:
+      summary: Получить все коллекции пользователя
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список коллекций
+
+    post:
+      summary: Создать коллекцию
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required: [name]
+      responses:
+        '201':
+          description: Коллекция создана
+
+  /collections/{id}/add:
+    post:
+      summary: Добавить объект в коллекцию
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                object_id:
+                  type: integer
+              required: [object_id]
+      responses:
+        '200':
+          description: Добавлено
+
+  /ratings:
+    post:
+      summary: Поставить оценку объекту
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                object_id:
+                  type: integer
+                rating:
+                  type: integer
+              required: [object_id, rating]
+      responses:
+        '201':
+          description: Оценка добавлена
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
